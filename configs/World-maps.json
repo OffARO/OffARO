@@ -15,7 +15,7 @@
       "type": "topo",
       "enabled": true,
       "subdomains": [],
-      "configSourceRepoId": "default-asmes",
+      "configSourceRepoId": "default-offaro",
       "configSourceFile": "configs/World-maps.json"
     },
     {
@@ -26,7 +26,7 @@
       "maxZoom": 19,
       "type": "osm",
       "enabled": true,
-      "configSourceRepoId": "default-asmes",
+      "configSourceRepoId": "default-offaro",
       "configSourceFile": "configs/World-maps.json"
     },
     {
@@ -37,7 +37,7 @@
       "maxZoom": 19,
       "type": "osm",
       "enabled": true,
-      "configSourceRepoId": "default-asmes",
+      "configSourceRepoId": "default-offaro",
       "configSourceFile": "configs/World-maps.json"
     }
   ],
@@ -58,7 +58,7 @@
         "all"
       ],
       "cachePriority": false,
-      "configSourceRepoId": "default-asmes",
+      "configSourceRepoId": "default-offaro",
       "configSourceFile": "configs/World-maps.json"
     }
   ]
