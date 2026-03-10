@@ -23,7 +23,7 @@
         "version": "1.3.0"
       },
       "cachePriority": true,
-      "configSourceRepoId": "default-asmes",
+      "configSourceRepoId": "default-offaro",
       "configSourceFile": "configs/Norway.json"
     },
     {
@@ -42,7 +42,7 @@
         "crs": "EPSG:3857",
         "version": "1.3.0"
       },
-      "configSourceRepoId": "default-asmes",
+      "configSourceRepoId": "default-offaro",
       "configSourceFile": "configs/Norway.json"
     },
     {
@@ -64,7 +64,7 @@
         "version": "1.3.0",
         "crs": "EPSG:3857"
       },
-      "configSourceRepoId": "default-asmes",
+      "configSourceRepoId": "default-offaro",
       "configSourceFile": "configs/Norway.json"
     },
     {
@@ -86,7 +86,7 @@
         "version": "1.3.0",
         "crs": "EPSG:3857"
       },
-      "configSourceRepoId": "default-asmes",
+      "configSourceRepoId": "default-offaro",
       "configSourceFile": "configs/Norway.json"
     }
   ],
@@ -115,7 +115,7 @@
         "version": "1.3.0",
         "transparent": true
       },
-      "configSourceRepoId": "default-asmes",
+      "configSourceRepoId": "default-offaro",
       "configSourceFile": "configs/Norway.json"
     },
     {
@@ -142,7 +142,7 @@
       "baseLayerCompatible": [
         "all"
       ],
-      "configSourceRepoId": "default-asmes",
+      "configSourceRepoId": "default-offaro",
       "configSourceFile": "configs/Norway.json"
     },
     {
@@ -168,7 +168,7 @@
         "version": "1.3.0",
         "transparent": true
       },
-      "configSourceRepoId": "default-asmes",
+      "configSourceRepoId": "default-offaro",
       "configSourceFile": "configs/Norway.json"
     },
     {
@@ -194,7 +194,7 @@
         "version": "1.3.0",
         "transparent": true
       },
-      "configSourceRepoId": "default-asmes",
+      "configSourceRepoId": "default-offaro",
       "configSourceFile": "configs/Norway.json"
     },
     {
@@ -220,7 +220,7 @@
         "version": "1.3.0",
         "transparent": true
       },
-      "configSourceRepoId": "default-asmes",
+      "configSourceRepoId": "default-offaro",
       "configSourceFile": "configs/Norway.json"
     },
     {
@@ -246,7 +246,7 @@
         "version": "1.3.0",
         "transparent": true
       },
-      "configSourceRepoId": "default-asmes",
+      "configSourceRepoId": "default-offaro",
       "configSourceFile": "configs/Norway.json"
     },
     {
@@ -272,7 +272,7 @@
         "version": "1.3.0",
         "transparent": true
       },
-      "configSourceRepoId": "default-asmes",
+      "configSourceRepoId": "default-offaro",
       "configSourceFile": "configs/Norway.json"
     },
     {
@@ -295,7 +295,7 @@
         "version": "1.3.0",
         "transparent": true
       },
-      "configSourceRepoId": "default-asmes",
+      "configSourceRepoId": "default-offaro",
       "configSourceFile": "configs/Norway.json"
     },
     {
@@ -326,7 +326,7 @@
       "baseLayerCompatible": [
         "all"
       ],
-      "configSourceRepoId": "default-asmes",
+      "configSourceRepoId": "default-offaro",
       "configSourceFile": "configs/Norway.json"
     },
     {
@@ -357,7 +357,7 @@
       "baseLayerCompatible": [
         "all"
       ],
-      "configSourceRepoId": "default-asmes",
+      "configSourceRepoId": "default-offaro",
       "configSourceFile": "configs/Norway.json"
     },
     {
@@ -388,7 +388,7 @@
       "baseLayerCompatible": [
         "all"
       ],
-      "configSourceRepoId": "default-asmes",
+      "configSourceRepoId": "default-offaro",
       "configSourceFile": "configs/Norway.json"
     }
   ]
