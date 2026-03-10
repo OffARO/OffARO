@@ -4,7 +4,7 @@
   "description": "",
   "author": "LB5ZH-4",
   "created": "2026-02-17T12:16:08.534Z",
-  "updated": "2026-03-10T11:12:49.202Z",
+  "updated": "2026-03-10T11:14:49.795Z",
   "tileSources": [
     {
       "id": "esri-world-topo",
@@ -22,6 +22,17 @@
       "id": "cartodb-dark",
       "name": "CartoDB Dark Matter",
       "url": "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
+      "attribution": "© OpenStreetMap contributors, © CartoDB",
+      "maxZoom": 19,
+      "type": "osm",
+      "enabled": true,
+      "configSourceRepoId": "default-asmes",
+      "configSourceFile": "configs/World-maps.json"
+    },
+    {
+      "id": "cartodb-positron",
+      "name": "CartoDB Positron (Light)",
+      "url": "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
       "attribution": "© OpenStreetMap contributors, © CartoDB",
       "maxZoom": 19,
       "type": "osm",
