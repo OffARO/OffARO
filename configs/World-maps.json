@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "name": "Additional World maps",
+  "description": "",
+  "author": "LB5ZH-4",
+  "created": "2026-02-17T12:16:08.534Z",
+  "updated": "2026-02-27T13:03:54.358Z",
+  "tileSources": [
+    {
+      "id": "esri-world-topo",
+      "name": "ESRI World Topographic",
+      "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+      "attribution": "© Esri, TomTom, Garmin, Intermap, increment P Corp., GEBCO, USGS, FAO, NPS, NRCAN, GeoBase, IGN, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), swisstopo, MapmyIndia, © OpenStreetMap contributors, and the GIS User Community",
+      "maxZoom": 18,
+      "type": "topo",
+      "enabled": true,
+      "subdomains": [],
+      "configSourceRepoId": "default-asmes",
+      "configSourceFile": "configs/World-maps.json"
+    },
+    {
+      "id": "cartodb-dark",
+      "name": "CartoDB Dark Matter",
+      "url": "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
+      "attribution": "© OpenStreetMap contributors, © CartoDB",
+      "maxZoom": 19,
+      "type": "osm",
+      "enabled": true,
+      "configSourceRepoId": "default-asmes",
+      "configSourceFile": "configs/World-maps.json"
+    },
+    {
+      "id": "cartodb-positron",
+      "name": "CartoDB Positron (Light)",
+      "url": "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
+      "attribution": "© OpenStreetMap contributors, © CartoDB",
+      "maxZoom": 19,
+      "type": "osm",
+      "enabled": true,
+      "configSourceRepoId": "default-asmes",
+      "configSourceFile": "configs/World-maps.json"
+    }
+  ],
+  "overlays": [
+    {
+      "id": "openseamap-nautical",
+      "name": "Nautical Charts (OpenSeaMap)",
+      "url": "https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png",
+      "attribution": "© OpenSeaMap contributors",
+      "maxZoom": 17,
+      "minZoom": 7,
+      "type": "overlay",
+      "enabled": true,
+      "isOverlay": true,
+      "opacity": 0.8,
+      "zIndex": 100,
+      "baseLayerCompatible": [
+        "all"
+      ],
+      "cachePriority": false,
+      "configSourceRepoId": "default-asmes",
+      "configSourceFile": "configs/World-maps.json"
+    }
+  ]
+}
