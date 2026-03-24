@@ -4,7 +4,7 @@
   "description": "",
   "author": "LB5ZH-4",
   "created": "2026-02-17T10:22:44.028Z",
-  "updated": "2026-03-03T09:23:14.836Z",
+  "updated": "2026-03-24T12:17:13.973Z",
   "tileSources": [
     {
       "id": "norgeskart-topo",
@@ -305,29 +305,21 @@
       "attribution": "Custom WFS Source",
       "maxZoom": 18,
       "minZoom": 0,
-      "type": "overlay",
+      "type": "custom",
       "enabled": true,
       "isOverlay": true,
-      "opacity": 0.8,
-      "zIndex": 1000,
-      "serviceType": "wfs",
       "disableCache": true,
+      "serviceType": "wfs",
       "wfsConfig": {
         "url": "https://ogckart-sn1.atlas.vegvesen.no/datex_3_1/ows",
         "typeName": "CctvSimple",
         "version": "2.0.0",
         "outputFormat": "application/json",
         "maxFeatures": 2000,
-        "updateInterval": 300000,
         "featureType": "camera",
-        "popupTemplate": "camera"
-      },
-      "description": "Interactive traffic cameras from Norwegian Public Roads Administration. Click markers to view camera images.",
-      "baseLayerCompatible": [
-        "all"
-      ],
-      "configSourceRepoId": "default-offaro",
-      "configSourceFile": "configs/Norway.json"
+        "updateInterval": 600000,
+        "sortBy": "cameraId"
+      }
     },
     {
       "id": "vegvesen-traffic",
@@ -336,29 +328,21 @@
       "attribution": "Custom WFS Source",
       "maxZoom": 18,
       "minZoom": 0,
-      "type": "overlay",
+      "type": "custom",
       "enabled": true,
       "isOverlay": true,
-      "opacity": 0.8,
-      "zIndex": 1000,
-      "serviceType": "wfs",
       "disableCache": true,
+      "serviceType": "wfs",
       "wfsConfig": {
         "url": "https://ogckart-sn1.atlas.vegvesen.no/datex_3_1/ows",
         "typeName": "SituationSimple",
         "version": "2.0.0",
         "outputFormat": "application/json",
-        "maxFeatures": 1000,
-        "updateInterval": 180000,
+        "maxFeatures": 5000,
         "featureType": "traffic",
-        "popupTemplate": "traffic"
-      },
-      "description": "Real-time traffic incidents and road conditions from Norwegian Public Roads Administration.",
-      "baseLayerCompatible": [
-        "all"
-      ],
-      "configSourceRepoId": "default-offaro",
-      "configSourceFile": "configs/Norway.json"
+        "updateInterval": 900000,
+        "sortBy": "situationId"
+      }
     },
     {
       "id": "vegvesen-weather",
@@ -367,29 +351,20 @@
       "attribution": "Custom WFS Source",
       "maxZoom": 18,
       "minZoom": 0,
-      "type": "overlay",
+      "type": "custom",
       "enabled": true,
       "isOverlay": true,
-      "opacity": 0.8,
-      "zIndex": 1000,
-      "serviceType": "wfs",
       "disableCache": true,
+      "serviceType": "wfs",
       "wfsConfig": {
         "url": "https://ogckart-sn1.atlas.vegvesen.no/datex_3_1/ows",
         "typeName": "WeatherSimple",
         "version": "2.0.0",
         "outputFormat": "application/json",
-        "maxFeatures": 500,
-        "updateInterval": 600000,
+        "maxFeatures": 5000,
         "featureType": "weather",
-        "popupTemplate": "weather"
-      },
-      "description": "Weather stations along Norwegian roads. Shows current conditions and measurements.",
-      "baseLayerCompatible": [
-        "all"
-      ],
-      "configSourceRepoId": "default-offaro",
-      "configSourceFile": "configs/Norway.json"
+        "updateInterval": 1020000
+      }
     }
   ]
 }
