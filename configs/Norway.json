@@ -4,7 +4,7 @@
   "description": "",
   "author": "LB5ZH-4",
   "created": "2026-02-17T10:22:44.028Z",
-  "updated": "2026-05-06T12:46:35.724Z",
+  "updated": "2026-06-03T06:46:26.462Z",
   "tileSources": [
     {
       "id": "norgeskart-topo",
@@ -94,29 +94,24 @@
     {
       "id": "nve-avalanche",
       "name": "Snøskred Aktsomhet (NVE)",
-      "url": "https://nve.geodataonline.no/arcgis/services/SnoskredAktsomhet/MapServer/WMSServer",
-      "attribution": "© NVE (Norges vassdrags- og energidirektorat)",
+      "url": "https://kart.nve.no/enterprise/services/SnoskredAktsomhet/MapServer/WMSServer",
+      "attribution": "Custom WMS Source",
       "maxZoom": 18,
-      "minZoom": 5,
-      "type": "overlay",
+      "minZoom": 0,
+      "type": "custom",
       "enabled": true,
       "isOverlay": true,
-      "opacity": 0.6,
-      "zIndex": 200,
-      "baseLayerCompatible": [
-        "all"
-      ],
-      "cachePriority": false,
+      "disableCache": false,
       "serviceType": "wms",
+      "configSourceRepoId": "default-offaro",
+      "configSourceFile": "configs/Norway.json",
       "wmsConfig": {
         "layers": "S3_snoskred_Aktsomhetsomrade",
-        "format": "png",
-        "crs": "EPSG:3857",
+        "format": "image/png",
+        "transparent": true,
         "version": "1.3.0",
-        "transparent": true
-      },
-      "configSourceRepoId": "default-offaro",
-      "configSourceFile": "configs/Norway.json"
+        "crs": "EPSG:3857"
+      }
     },
     {
       "id": "kvikkleire-skredfare",
