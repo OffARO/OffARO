@@ -1,10 +1,10 @@
 {
-  "version": 1,
+  "version": 2,
   "name": "Norwegian default maps",
   "description": "",
   "author": "LB5ZH-4",
   "created": "2026-02-17T10:22:44.028Z",
-  "updated": "2026-06-03T06:46:26.462Z",
+  "updated": "2026-06-15T09:32:16.388Z",
   "tileSources": [
     {
       "id": "norgeskart-topo",
@@ -360,6 +360,14 @@
         "featureType": "weather",
         "updateInterval": 1020000
       }
+    }
+  ],
+  "sarServers": [
+    {
+      "id": "9ccd4068-77d8-48ec-b932-91b577176b1a",
+      "name": "NRRL Server",
+      "host": "aprs-is-02.nrrl.no",
+      "port": 17777
     }
   ]
 }
