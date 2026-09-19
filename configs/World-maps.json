@@ -1,10 +1,10 @@
 {
-  "version": 1,
+  "version": 2,
   "name": "Additional World maps",
   "description": "",
   "author": "LB5ZH-4",
   "created": "2026-02-17T12:16:08.534Z",
-  "updated": "2026-03-10T11:14:49.795Z",
+  "updated": "2026-09-19T11:15:43.708Z",
   "tileSources": [
     {
       "id": "esri-world-topo",
@@ -14,31 +14,37 @@
       "maxZoom": 18,
       "type": "topo",
       "enabled": true,
-      "subdomains": [],
-      "configSourceRepoId": "default-offaro",
-      "configSourceFile": "configs/World-maps.json"
+      "subdomains": []
     },
     {
       "id": "cartodb-dark",
       "name": "CartoDB Dark Matter",
-      "url": "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
-      "attribution": "© OpenStreetMap contributors, © CartoDB",
-      "maxZoom": 19,
-      "type": "osm",
+      "url": "https://basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png?key={API_KEY}",
+      "attribution": "Custom TILE Source",
+      "maxZoom": 18,
+      "minZoom": 0,
+      "type": "custom",
       "enabled": true,
-      "configSourceRepoId": "default-offaro",
-      "configSourceFile": "configs/World-maps.json"
+      "isOverlay": false,
+      "disableCache": false,
+      "serviceType": "tile",
+      "requiresApiKey": true,
+      "apiKeyPlaceholder": "{API_KEY}"
     },
     {
       "id": "cartodb-positron",
       "name": "CartoDB Positron (Light)",
-      "url": "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
-      "attribution": "© OpenStreetMap contributors, © CartoDB",
-      "maxZoom": 19,
-      "type": "osm",
+      "url": "https://basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}.png?key={API_KEY}",
+      "attribution": "Custom TILE Source",
+      "maxZoom": 18,
+      "minZoom": 0,
+      "type": "custom",
       "enabled": true,
-      "configSourceRepoId": "default-offaro",
-      "configSourceFile": "configs/World-maps.json"
+      "isOverlay": false,
+      "disableCache": false,
+      "serviceType": "tile",
+      "requiresApiKey": true,
+      "apiKeyPlaceholder": "{API_KEY}"
     }
   ],
   "overlays": [
@@ -57,9 +63,7 @@
       "baseLayerCompatible": [
         "all"
       ],
-      "cachePriority": false,
-      "configSourceRepoId": "default-offaro",
-      "configSourceFile": "configs/World-maps.json"
+      "cachePriority": false
     }
   ]
 }
