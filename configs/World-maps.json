@@ -4,7 +4,7 @@
   "description": "",
   "author": "LB5ZH-4",
   "created": "2026-02-17T12:16:08.534Z",
-  "updated": "2026-09-19T11:15:43.708Z",
+  "updated": "2026-09-24T16:39:09.228Z",
   "tileSources": [
     {
       "id": "esri-world-topo",
@@ -45,6 +45,42 @@
       "serviceType": "tile",
       "requiresApiKey": true,
       "apiKeyPlaceholder": "{API_KEY}"
+    },
+    {
+      "id": "openfreemap-liberty",
+      "name": "OpenFreeMap Liberty",
+      "url": "https://tiles.openfreemap.org/styles/liberty",
+      "attribution": "© OpenMapTiles © OpenStreetMap contributors",
+      "maxZoom": 19,
+      "type": "custom",
+      "enabled": true,
+      "serviceType": "vector",
+      "disableCache": false,
+      "description": "Vector map rendered on the GPU (MapLibre). Online only — not cached for offline use."
+    },
+    {
+      "id": "openfreemap-positron",
+      "name": "OpenFreeMap Positron",
+      "url": "https://tiles.openfreemap.org/styles/positron",
+      "attribution": "© OpenMapTiles © OpenStreetMap contributors",
+      "maxZoom": 19,
+      "type": "custom",
+      "enabled": true,
+      "serviceType": "vector",
+      "disableCache": false,
+      "description": "Light vector map rendered on the GPU (MapLibre). Online only — not cached for offline use."
+    },
+    {
+      "id": "openfreemap-bright",
+      "name": "OpenFreeMap Bright",
+      "url": "https://tiles.openfreemap.org/styles/bright",
+      "attribution": "© OpenMapTiles © OpenStreetMap contributors",
+      "maxZoom": 19,
+      "type": "custom",
+      "enabled": true,
+      "serviceType": "vector",
+      "disableCache": false,
+      "description": "Bright vector map rendered on the GPU (MapLibre). Online only — not cached for offline use."
     }
   ],
   "overlays": [
