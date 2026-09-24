@@ -4,7 +4,7 @@
   "description": "",
   "author": "LB5ZH-4",
   "created": "2026-02-17T10:22:44.028Z",
-  "updated": "2026-06-26T19:59:39.449Z",
+  "updated": "2026-09-24T16:38:55.765Z",
   "tileSources": [
     {
       "id": "norgeskart-topo",
@@ -22,9 +22,7 @@
         "crs": "EPSG:3857",
         "version": "1.3.0"
       },
-      "cachePriority": true,
-      "configSourceRepoId": "default-offaro",
-      "configSourceFile": "configs/Norway.json"
+      "cachePriority": true
     },
     {
       "id": "sjokart",
@@ -41,9 +39,7 @@
         "format": "image/png",
         "crs": "EPSG:3857",
         "version": "1.3.0"
-      },
-      "configSourceRepoId": "default-offaro",
-      "configSourceFile": "configs/Norway.json"
+      }
     },
     {
       "id": "terrengmodell",
@@ -63,9 +59,7 @@
         "transparent": true,
         "version": "1.3.0",
         "crs": "EPSG:3857"
-      },
-      "configSourceRepoId": "default-offaro",
-      "configSourceFile": "configs/Norway.json"
+      }
     },
     {
       "id": "custom_4a5d454c-a968-41c1-b622-99faf4ba76fa",
@@ -85,9 +79,7 @@
         "transparent": true,
         "version": "1.3.0",
         "crs": "EPSG:3857"
-      },
-      "configSourceRepoId": "default-offaro",
-      "configSourceFile": "configs/Norway.json"
+      }
     }
   ],
   "overlays": [
@@ -103,8 +95,6 @@
       "isOverlay": true,
       "disableCache": false,
       "serviceType": "wms",
-      "configSourceRepoId": "default-offaro",
-      "configSourceFile": "configs/Norway.json",
       "wmsConfig": {
         "layers": "S3_snoskred_Aktsomhetsomrade",
         "format": "image/png",
@@ -136,9 +126,7 @@
       "opacity": 0.8,
       "baseLayerCompatible": [
         "all"
-      ],
-      "configSourceRepoId": "default-offaro",
-      "configSourceFile": "configs/Norway.json"
+      ]
     },
     {
       "id": "custom-1755759167012",
@@ -162,9 +150,7 @@
         "crs": "EPSG:3857",
         "version": "1.3.0",
         "transparent": true
-      },
-      "configSourceRepoId": "repo-mo8f9xo1-o67syv",
-      "configSourceFile": "configs/Ny-demo.json"
+      }
     },
     {
       "id": "skogsbilveg",
@@ -188,9 +174,7 @@
         "crs": "EPSG:3857",
         "version": "1.3.0",
         "transparent": true
-      },
-      "configSourceRepoId": "default-offaro",
-      "configSourceFile": "configs/Norway.json"
+      }
     },
     {
       "id": "custom-1755757294584",
@@ -214,9 +198,7 @@
         "crs": "EPSG:3857",
         "version": "1.3.0",
         "transparent": true
-      },
-      "configSourceRepoId": "default-offaro",
-      "configSourceFile": "configs/Norway.json"
+      }
     },
     {
       "id": "emergency-shelter",
@@ -240,9 +222,7 @@
         "crs": "EPSG:3857",
         "version": "1.3.0",
         "transparent": true
-      },
-      "configSourceRepoId": "default-offaro",
-      "configSourceFile": "configs/Norway.json"
+      }
     },
     {
       "id": "custom-1755727792981",
@@ -266,9 +246,7 @@
         "crs": "EPSG:3857",
         "version": "1.3.0",
         "transparent": true
-      },
-      "configSourceRepoId": "default-offaro",
-      "configSourceFile": "configs/Norway.json"
+      }
     },
     {
       "id": "custom-1755727827732",
@@ -289,9 +267,7 @@
         "crs": "EPSG:3857",
         "version": "1.3.0",
         "transparent": true
-      },
-      "configSourceRepoId": "default-offaro",
-      "configSourceFile": "configs/Norway.json"
+      }
     },
     {
       "id": "vegvesen-cameras",
@@ -359,6 +335,28 @@
         "maxFeatures": 5000,
         "featureType": "weather",
         "updateInterval": 1020000
+      }
+    },
+    {
+      "id": "custom_91c00ca8-12e6-42a7-aeec-60a10a2d1116",
+      "name": "Bridge wind gauges (Vegvesen)",
+      "url": "https://road-weather-and-view.atlas.vegvesen.no/weather-information/measurement-sites",
+      "attribution": "Custom WFS Source",
+      "maxZoom": 18,
+      "minZoom": 0,
+      "type": "custom",
+      "enabled": true,
+      "isOverlay": true,
+      "disableCache": true,
+      "serviceType": "wfs",
+      "wfsConfig": {
+        "url": "https://road-weather-and-view.atlas.vegvesen.no/weather-information/measurement-sites",
+        "typeName": "measurement-sites",
+        "version": "2.0.0",
+        "outputFormat": "application/json",
+        "maxFeatures": 500,
+        "featureType": "wind",
+        "updateInterval": 660000
       }
     }
   ],
