@@ -4,8 +4,23 @@
   "description": "",
   "author": "LB5ZH-4",
   "created": "2026-02-17T12:16:08.534Z",
-  "updated": "2026-09-24T16:39:09.228Z",
+  "updated": "2026-09-30T09:23:58.072Z",
   "tileSources": [
+    {
+      "id": "custom_9aa87477-12ed-4b55-86e7-efd409c36218",
+      "name": "MapTiler Outdoor",
+      "url": "https://api.maptiler.com/maps/outdoor-v4/style.json?key={API_KEY}",
+      "attribution": "Custom vector source",
+      "maxZoom": 19,
+      "minZoom": 0,
+      "type": "custom",
+      "enabled": true,
+      "isOverlay": false,
+      "disableCache": false,
+      "serviceType": "vector",
+      "requiresApiKey": true,
+      "apiKeyPlaceholder": "{API_KEY}"
+    },
     {
       "id": "esri-world-topo",
       "name": "ESRI World Topographic",
