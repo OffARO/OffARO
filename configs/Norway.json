@@ -4,7 +4,7 @@
   "description": "",
   "author": "LB5ZH-4",
   "created": "2026-02-17T10:22:44.028Z",
-  "updated": "2026-10-16T12:59:15.158Z",
+  "updated": "2026-10-16T15:28:42.959Z",
   "tileSources": [
     {
       "id": "norgeskart-topo",
@@ -373,6 +373,89 @@
         "featureType": "wind",
         "updateInterval": 660000
       }
+    },
+    {
+      "id": "met-precipitation-1h",
+      "name": "🌧️ Nedbør mm/t (MET, 1 km varsel)",
+      "url": "https://thredds.met.no/thredds/wms/metpplatest/met_forecast_1_0km_nordic_latest.nc",
+      "attribution": "Værdata: MET Norway (CC BY 4.0)",
+      "maxZoom": 18,
+      "minZoom": 4,
+      "type": "overlay",
+      "enabled": true,
+      "isOverlay": true,
+      "disableCache": true,
+      "opacity": 0.75,
+      "serviceType": "wms",
+      "wmsConfig": {
+        "layers": "precipitation_amount",
+        "format": "image/png",
+        "transparent": true,
+        "version": "1.3.0",
+        "crs": "EPSG:3857",
+        "params": {
+          "styles": "default-scalar/seq-Blues",
+          "colorscalerange": "0.1,8",
+          "numcolorbands": "16",
+          "belowmincolor": "transparent",
+          "abovemaxcolor": "extend"
+        },
+        "timeDimension": "forecast"
+      }
+    },
+    {
+      "id": "met-wind-speed-10m",
+      "name": "💨 Vindstyrke 10 m (MET, 1 km varsel)",
+      "url": "https://thredds.met.no/thredds/wms/metpplatest/met_forecast_1_0km_nordic_latest.nc",
+      "attribution": "Værdata: MET Norway (CC BY 4.0)",
+      "maxZoom": 18,
+      "minZoom": 4,
+      "type": "overlay",
+      "enabled": true,
+      "isOverlay": true,
+      "disableCache": true,
+      "opacity": 0.55,
+      "serviceType": "wms",
+      "wmsConfig": {
+        "layers": "wind_speed_10m",
+        "format": "image/png",
+        "transparent": true,
+        "version": "1.3.0",
+        "crs": "EPSG:3857",
+        "params": {
+          "styles": "default-scalar/x-Rainbow",
+          "colorscalerange": "2,25",
+          "numcolorbands": "23",
+          "belowmincolor": "transparent",
+          "abovemaxcolor": "extend"
+        },
+        "timeDimension": "forecast"
+      }
+    },
+    {
+      "id": "met-wind-arrows-10m",
+      "name": "➡️ Vindretning piler (MET, 1 km varsel)",
+      "url": "https://thredds.met.no/thredds/wms/metpplatest/met_forecast_1_0km_nordic_latest.nc",
+      "attribution": "Værdata: MET Norway (CC BY 4.0)",
+      "maxZoom": 18,
+      "minZoom": 4,
+      "type": "overlay",
+      "enabled": true,
+      "isOverlay": true,
+      "disableCache": true,
+      "opacity": 0.9,
+      "serviceType": "wms",
+      "wmsConfig": {
+        "layers": "wind_direction_10m",
+        "format": "image/png",
+        "transparent": true,
+        "version": "1.3.0",
+        "crs": "EPSG:3857",
+        "params": {
+          "styles": "arrows"
+        },
+        "timeDimension": "forecast"
+      }
     }
   ],
   "sarServers": [
@@ -384,6 +467,10 @@
     }
   ],
   "folders": [
+    {
+      "id": "folder-met-weather",
+      "name": "Vær (MET)"
+    },
     {
       "id": "folder-vegvesen",
       "name": "Vegvesen"
@@ -397,6 +484,7 @@
       "custom_91c00ca8-12e6-42a7-aeec-60a10a2d1116"
     ],
     "root": [
+      "folder-met-weather",
       "nve-avalanche",
       "kvikkleire-skredfare",
       "custom-1755759167012",
@@ -407,6 +495,12 @@
       "custom-1755727827732",
       "custom_d32adfae-a9f8-4242-8b12-138bef87f922",
       "folder-vegvesen"
+    ],
+    "folder-met-weather": [
+      "met-precipitation-1h",
+      "met-wind-speed-10m",
+      "met-wind-arrows-10m"
     ]
-  }
+  },
+  "drawingFolderTree": {}
 }
