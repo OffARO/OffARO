@@ -4,7 +4,7 @@
   "description": "",
   "author": "LB5ZH-4",
   "created": "2026-02-17T10:22:44.028Z",
-  "updated": "2026-10-16T10:52:02.877Z",
+  "updated": "2026-10-16T11:16:09.182Z",
   "tileSources": [
     {
       "id": "norgeskart-topo",
@@ -450,5 +450,22 @@
       "host": "aprs-is-02.nrrl.no",
       "port": 17777
     }
-  ]
+  ],
+  "folders": [
+    {
+      "id": "folder-met-weather",
+      "name": "Vær (MET)"
+    }
+  ],
+  "folderTree": {
+    "root": [
+      "folder-met-weather"
+    ],
+    "folder-met-weather": [
+      "met-precipitation-1h",
+      "met-wind-speed-10m",
+      "met-wind-arrows-10m"
+    ]
+  },
+  "drawingFolderTree": {}
 }
