@@ -172,15 +172,25 @@ def encode_ascii85(data: bytes) -> str:
 
 
 def decode_ascii85(s: str) -> bytes:
-    """Decode ASCII-85 string to bytes."""
+    """Decode ASCII-85 string to bytes. Strict: only the characters '!'..'u'
+    and only group values below 2^32, so every digest has exactly one
+    spelling — otherwise a replayed signature could be re-spelled to dodge
+    the replay guard."""
     result = []
     for i in range(0, len(s), 5):
         chunk = s[i:i + 5]
         remaining = len(chunk)
         value = 0
         for j in range(5):
-            c = ord(chunk[j]) - 33 if j < remaining else 84
+            if j < remaining:
+                c = ord(chunk[j]) - 33
+                if not 0 <= c <= 84:
+                    raise ValueError(f"character {chunk[j]!r} is not Ascii85")
+            else:
+                c = 84
             value = value * 85 + c
+        if value >= 1 << 32:
+            raise ValueError("non-canonical Ascii85 group")
         count = remaining - 1 if remaining < 5 else 4
         for j in range(3, 3 - count, -1):
             result.append((value >> (j * 8)) & 0xFF)
@@ -624,7 +634,9 @@ def is_replayed_signature(source: str, body: str, signature: str,
     now = time.time() if now is None else now
     for k in [k for k, (_, t) in _seen_signatures.items() if now - t > DEDUP_WINDOW]:
         del _seen_signatures[k]
-    key = f"{source.upper()}:{body}:{signature}"
+    # Key on the digest, not its spelling (decode_ascii85 is strict, so this
+    # is belt and braces; the caller has already verified the signature).
+    key = f"{source.upper()}:{body}:{decode_ascii85(signature).hex()}"
     seen = _seen_signatures.get(key)
     if seen is None:
         _seen_signatures[key] = (sequence, now)
