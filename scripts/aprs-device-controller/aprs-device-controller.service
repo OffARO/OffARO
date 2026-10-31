@@ -1,0 +1,17 @@
+[Unit]
+Description=APRS Device Controller for Shelly remote management
+After=network.target direwolf.service
+Wants=direwolf.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/aprs-device-controller
+ExecStart=/usr/bin/python3 /opt/aprs-device-controller/aprs_device_controller.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

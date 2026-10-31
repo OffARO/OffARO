@@ -1,0 +1,34 @@
+# OffARO Drone Remote ID — filtering receiver as a systemd service.
+#
+#   sudo apt install iw tcpdump
+#   sudo cp remoteid_filter.py /usr/local/bin/
+#   sudo cp remoteid-filter.service /etc/systemd/system/
+#   # edit the interface name (and channel / port) in ExecStart below, then
+#   sudo systemctl daemon-reload && sudo systemctl enable --now remoteid-filter
+#   journalctl -u remoteid-filter -f
+#
+# From a laptop in the field:  ssh -L 5003:localhost:5003 <this box>
+# and in OffARO: Map Settings → Drone Remote ID → Remote receiver 127.0.0.1 : 5003.
+[Unit]
+Description=OffARO Remote ID filtering receiver (tcpdump → Remote ID frames only → TCP)
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+# --bind 127.0.0.1: reachable through an SSH tunnel only. Use --bind 0.0.0.0 to serve the LAN
+# directly (the stream has no authentication; anyone who can connect sees the drone positions).
+ExecStart=/usr/bin/python3 /usr/local/bin/remoteid_filter.py --interface wlan1 --monitor-channel 6 --listen 5003 --bind 127.0.0.1
+Restart=always
+RestartSec=5
+# Capture and the interface mode change need NET_RAW/NET_ADMIN; SETUID/SETGID let
+# Debian's tcpdump drop to its own 'tcpdump' user after opening the interface, and
+# KILL lets the proxy stop that process again when it restarts the capture.
+CapabilityBoundingSet=CAP_NET_RAW CAP_NET_ADMIN CAP_SETUID CAP_SETGID CAP_KILL
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
