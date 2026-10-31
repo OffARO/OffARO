@@ -9,7 +9,7 @@ OffARO itself can run tcpdump on a local adapter (Linux). The programs here are 
 | `remoteid_filter.py` | **Use this.** Puts the adapter into monitor mode, keeps tcpdump running and serves the capture to OffARO as a pcap stream on TCP port 5003. Forwards **only the frames that carry Remote ID**; everything else (ten beacons a second from every access point around) is dropped on the Pi. About 1 kB/s per drone in the air, nothing when the sky is empty, so it works over 4G. Several OffARO clients may connect at once. Python 3 standard library only. |
 | `remoteid-filter.service` | systemd unit that starts the filter at boot, with the capabilities tcpdump needs and nothing else. |
 | `monitor-setup.sh` | Puts an adapter into monitor mode on a channel, once (`--hop` alternates between channels 6 and 149). Used when OffARO runs tcpdump itself on a local adapter. |
-| `pi-receiver.sh` | The older, simpler receiver: tcpdump piped through socat. Sends the **unfiltered** capture to one client at a time. Fine on a LAN, too much data over 4G. |
+| `pi-receiver.sh` | The older, simpler receiver: tcpdump piped through socat. Sends the **unfiltered** capture to one client at a time. Listens on `127.0.0.1` unless a bind address is given as the fourth argument. Fine on a LAN, too much data over 4G. |
 | `test_remoteid_filter.py` | Unit tests for the filter (`python3 -m unittest -q test_remoteid_filter.py`). |
 
 ## Quick start on a Raspberry Pi

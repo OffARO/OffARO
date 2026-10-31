@@ -2,12 +2,14 @@
 # OffARO Drone Remote ID — remote receiver (Raspberry Pi / any Linux box with a
 # monitor-mode Wi-Fi adapter and, ideally, an external antenna).
 #
-#   sudo scripts/drone-remote-id/pi-receiver.sh <interface> [port] [channel]
+#   sudo scripts/drone-remote-id/pi-receiver.sh <interface> [port] [channel] [bind]
 #
 # Puts <interface> into monitor mode (see monitor-setup.sh), then streams every
 # beacon / probe-response frame as a pcap stream to the first TCP client that
-# connects on [port] (default 5003). In OffARO enable "Remote receiver" under
-# Map Settings → Drone Remote ID with this machine's address and port.
+# connects on [port] (default 5003). It listens on 127.0.0.1 only, for use
+# through an SSH tunnel (ssh -L 5003:localhost:5003 pi); pass 0.0.0.0 as [bind]
+# to expose it on the LAN — the stream has no authentication. In OffARO enable
+# "Remote receiver" under Map Settings → Drone Remote ID with the address and port.
 #
 # Needs: iw, tcpdump, socat   (apt install iw tcpdump socat)
 #
@@ -21,8 +23,9 @@ set -euo pipefail
 IF="${1:-}"
 PORT="${2:-5003}"
 CH="${3:-6}"
+BIND="${4:-127.0.0.1}"
 if [ -z "$IF" ]; then
-  echo "usage: $0 <interface> [port] [channel]" >&2
+  echo "usage: $0 <interface> [port] [channel] [bind]" >&2
   exit 1
 fi
 for t in iw tcpdump socat; do
@@ -37,11 +40,11 @@ else
 fi
 
 FILTER='type mgt and (subtype beacon or subtype probe-resp)'
-echo "streaming pcap from $IF on TCP port $PORT (Ctrl-C to stop)"
+echo "streaming pcap from $IF on $BIND:$PORT (Ctrl-C to stop)"
 trap 'exit 0' INT TERM
 while true; do
   # One client at a time; tcpdump restarts for every new connection so the
   # client always receives a fresh pcap header.
-  socat -u "EXEC:tcpdump -i $IF -U -w - -s 0 -n '$FILTER'" "TCP-LISTEN:$PORT,reuseaddr" || true
+  socat -u "EXEC:tcpdump -i $IF -U -w - -s 0 -n '$FILTER'" "TCP-LISTEN:$PORT,bind=$BIND,reuseaddr" || true
   sleep 1
 done

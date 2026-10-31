@@ -607,6 +607,45 @@ def is_duplicate(source: str, body: str, sequence: str | None = None) -> bool:
     return False
 
 
+# ── Replayed signatures ────────────────────────────────────────────────
+# The signature covers sender, addressee, body and the minute — not the {seq}.
+# A captured control command could therefore be re-sent with a fresh {seq}
+# inside the three-minute validity window and would pass is_duplicate(). The
+# protocol cannot tell such a replay from the owner sending the same command
+# twice in one minute (identical signature, new {seq}), so a repeated signature
+# is not rejected: a control command is downgraded to a status query. The
+# owner still gets an ACK and the current state; a replayer changes nothing.
+# Status requests are read-only and are left alone.
+_seen_signatures: dict[str, tuple[str | None, float]] = {}  # key -> (seq, ts)
+
+
+def is_replayed_signature(source: str, body: str, signature: str,
+                          sequence: str | None, now: float | None = None) -> bool:
+    now = time.time() if now is None else now
+    for k in [k for k, (_, t) in _seen_signatures.items() if now - t > DEDUP_WINDOW]:
+        del _seen_signatures[k]
+    key = f"{source.upper()}:{body}:{signature}"
+    seen = _seen_signatures.get(key)
+    if seen is None:
+        _seen_signatures[key] = (sequence, now)
+        return False
+    return seen[0] != sequence
+
+
+def effective_body(source: str, body: str, signature: str,
+                   sequence: str | None, now: float | None = None) -> str:
+    """The body to act on: a control command whose signature was already
+    accepted under another sequence number becomes a status query."""
+    if not body.startswith(CONTROL_PREFIX):
+        return body
+    if is_replayed_signature(source, body, signature, sequence, now):
+        log.warning("   ⚠️ control command repeats a signature already accepted under "
+                    f"another sequence number (now seq={sequence or '—'}) — "
+                    "answering with status only, nothing switched")
+        return STATUS_COMMAND
+    return body
+
+
 # ── Completed exchanges ────────────────────────────────────────────────
 # Once OffARO has ACKed our status response, the exchange is over. Late
 # copies of the same request (RF digipeater / iGate echoes can trail by
@@ -895,6 +934,16 @@ def handle_incoming_ack(seq: str) -> None:
         log.debug(f"ACK for unknown seq {seq}")
 
 
+def accept_incoming_ack(source: str, seq: str) -> bool:
+    """ACKs are unsigned, so at least insist that they come from the station we
+    talk to; anyone else could otherwise silence our retries."""
+    if source.upper() != AUTHORIZED_SENDER.upper():
+        log.warning(f"   ⛔ ACK for seq {seq} from {source} ignored (not {AUTHORIZED_SENDER})")
+        return False
+    handle_incoming_ack(seq)
+    return True
+
+
 def process_retries() -> None:
     """Retransmit pending messages whose retry interval has elapsed."""
     now = time.time()
@@ -1015,7 +1064,7 @@ def _handle_incoming_locked(msg: Message, devices: list) -> None:
     if msg.body.startswith("ack"):
         ack_seq = msg.body[3:]
         log.info(f"📥 ACK from {source} via {msg.transport.name}: ack{ack_seq}")
-        handle_incoming_ack(ack_seq)
+        accept_incoming_ack(source, ack_seq)
         return
 
     # ── Per-message envelope log ─────────────────────────────────
@@ -1039,12 +1088,13 @@ def _handle_incoming_locked(msg: Message, devices: list) -> None:
     if not verify_signature(source, MY_CALLSIGN, body, signature, SIGNING_KEY):
         log.warning(
             f"   ⛔ REJECTED: signature verification FAILED "
-            f"(body={body!r}, sig={signature!r}, key length={len(SIGNING_KEY)})"
+            f"(body={body!r}, sig={signature!r})"
         )
         log.info(f"   ❌ no ACK sent (signature did not verify)")
         return
 
-    log.info(f"   ✅ signature OK (HMAC-MD5, key={SIGNING_KEY[:3]}…)")
+    log.info("   ✅ signature OK (HMAC-MD5)")
+    body = effective_body(source, body, signature, msg.sequence)
     reverse_str = ','.join(msg.reverse_path) if msg.reverse_path else 'direct'
 
     # Duplicate (same message via several digis / iGates / transports)

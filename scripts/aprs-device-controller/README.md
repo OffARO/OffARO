@@ -39,4 +39,5 @@ On the air: `status` → `S:0010201001020100` (one digit per device: `0` off, `1
 
 - Log in to APRS-IS under a **different SSID** than the one the messages are addressed to (`APRS_IS_LOGIN_CALLSIGN`). aprsc drops upstream packets whose source equals a verified client's login, so logging in as the station's own callsign hides its RF beacons from every other APRS-IS client.
 - Replies go back on the path the request arrived on, and over RF when APRS-IS is down. Acknowledgements over RF wait a few seconds so the digipeater chain has finished repeating the request.
+- The signature does not cover the message's sequence number, so a captured `C:` command could be re-sent with a new number for up to three minutes. The controller therefore answers a repeated signature with **status only** and switches nothing; sending the same command twice within a minute shows you the current state instead of re-applying it. Unsigned ACKs are only honoured from `AUTHORIZED_SENDER`.
 - The log file rotates at 10 MiB, five generations.
