@@ -31,6 +31,27 @@ field LAN with no internet and no SSH tunnel.
 
 Only Python 3 and its standard library are needed. Press `s` to sort by age instead of distance.
 
+## Vessel names across restarts
+
+A ship's name, call sign and type arrive only every six minutes (AIS message 5 / 24), so
+with `--cache FILE` the console keeps them in a small JSON file and shows the name the moment
+the first position report comes in. The file is written at most once a minute and only when
+something changed; put it on persistent storage when the root file system is an overlay
+(`install.sh` uses `data/vessels.json` next to itself). Entries unseen for five years are
+dropped and the file is capped at 100 000 vessels.
+
+**Seed it from OffARO:** OffARO already has the same information for every vessel it has
+ever shown (`ais-static.db` in its user-data folder). On the machine that runs OffARO:
+
+```
+python3 export_offaro_cache.py --into vessels.json
+scp vessels.json pi@<box>:/path/to/receiver-console/data/vessels.json
+```
+
+On the box, `export_offaro_cache.py --from-json other.json --into data/vessels.json` merges a
+second file (newer "last seen" wins, missing fields are filled in). User-data folders:
+macOS `~/Library/Application Support/Offaro`, Windows `%APPDATA%\Offaro`, Linux `~/.config/Offaro`.
+
 ## Install on the console (tty1 autologin)
 
 ```

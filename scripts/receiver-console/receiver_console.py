@@ -12,6 +12,11 @@ The header shows the box's IP addresses and the footer tells you where to point
 OffARO (AIS / ADS-B / Remote ID host:port), so the box can be used on a LAN with
 no internet and no SSH tunnel. Only the standard library (plus curses) is needed.
 
+Ship names, call signs and types arrive only every six minutes (AIS message 5/24),
+so `--cache FILE` keeps them in a JSON file across restarts (put it on persistent
+storage when the root file system is an overlay) and a vessel shows its name the
+moment its first position report arrives.
+
   python3 receiver_console.py --lat 69.70 --lon 18.88
   python3 receiver_console.py --dump --dump-wait 5     # one frame as plain text (for tests / ssh)
 
@@ -24,6 +29,7 @@ import json
 import os
 import math
 import select
+import signal
 import socket
 import subprocess
 import sys
@@ -34,10 +40,46 @@ VERSION = '1.0'
 # ─── AIS decoding ──────────────────────────────────────────────────────────
 
 NAV_STATUS = {
-    0: 'Under way', 1: 'At anchor', 2: 'Not under cmd', 3: 'Restricted', 4: 'Constr. draught',
-    5: 'Moored', 6: 'Aground', 7: 'Fishing', 8: 'Sailing', 11: 'Towing astern', 12: 'Pushing',
+    0: 'Under way', 1: 'At anchor', 2: 'Not u. cmd', 3: 'Restricted', 4: 'Constrained',
+    5: 'Moored', 6: 'Aground', 7: 'Fishing', 8: 'Sailing', 11: 'Towing', 12: 'Pushing',
     14: 'AIS-SART', 15: '',
 }
+
+# AIS ship-type codes → short label (first digit groups 2x/4x/6x/7x/8x/9x share a label).
+SHIP_TYPES = {
+    20: 'WIG', 30: 'Fishing', 31: 'Towing', 32: 'Towing', 33: 'Dredger', 34: 'Diving', 35: 'Military',
+    36: 'Sailing', 37: 'Pleasure', 40: 'HSC', 50: 'Pilot', 51: 'SAR', 52: 'Tug', 53: 'Tender',
+    54: 'Anti-poll.', 55: 'Police', 58: 'Medical', 59: 'Noncombat.', 60: 'Passenger', 70: 'Cargo',
+    80: 'Tanker', 90: 'Other',
+}
+# Long labels (gpsd / AIS Dispatcher wording) → the same short labels, for imported caches.
+SHIP_TYPE_ALIASES = {
+    'pleasure craft': 'Pleasure', 'high speed craft (hsc)': 'HSC', 'search and rescue vessel': 'SAR',
+    'dredging or underwater ops': 'Dredger', 'not available': '', 'other type': 'Other',
+    'wing in ground (wig)': 'WIG', 'law enforcement': 'Police', 'port tender': 'Tender',
+    'anti-pollution equipment': 'Anti-poll.', 'military ops': 'Military', 'medical transport': 'Medical',
+    'spare - local vessel': 'Local', 'diving ops': 'Diving', 'pilot vessel': 'Pilot',
+    'reserved for future use': '', 'unknown': '', 'noncombatant ship according to rr resolution no. 18': 'Noncombat.',
+}
+
+
+def ship_type_text(code):
+    """Short label for an AIS ship-type code (None / 0 → '')."""
+    if not code:
+        return ''
+    if code in SHIP_TYPES:
+        return SHIP_TYPES[code]
+    if 20 <= code <= 29 or 40 <= code <= 49 or 60 <= code <= 99:
+        return SHIP_TYPES.get(code // 10 * 10, '')
+    return ''
+
+
+def normalise_type_text(text):
+    text = (text or '').strip()
+    key = text.lower()
+    if key.startswith('towing'):
+        return 'Towing'
+    return SHIP_TYPE_ALIASES.get(key, text[:10])
 
 
 def nmea_checksum_ok(sentence):
@@ -214,21 +256,135 @@ class AisAssembler:
             return None
 
 
+class VesselCache:
+    """Persistent mmsi → {n: name, c: call sign, t: type label, d: destination, s: last seen}.
+
+    JSON file, written atomically at most every `save_interval` seconds when something
+    changed, so a USB stick or SD card sees few writes. Entries unseen for `max_age_days`
+    are dropped when loading, and the table is capped at `max_entries` (oldest first).
+    """
+
+    def __init__(self, path, save_interval=60, max_entries=100000, max_age_days=5 * 365):
+        self.path = path
+        self.save_interval = save_interval
+        self.max_entries = max_entries
+        self.max_age = max_age_days * 86400
+        self.vessels = {}
+        self.dirty = False
+        self.last_save = 0.0
+        self.error = None
+
+    def load(self, now=None):
+        now = time.time() if now is None else now
+        try:
+            with open(self.path) as f:
+                data = json.load(f)
+        except FileNotFoundError:
+            return 0
+        except (OSError, ValueError) as e:
+            self.error = 'cache unreadable: %s' % e
+            return 0
+        raw = data.get('vessels', {}) if isinstance(data, dict) else {}
+        for mmsi, e in raw.items():
+            if not isinstance(e, dict) or not str(mmsi).isdigit():
+                continue
+            seen = e.get('s', 0)
+            if not isinstance(seen, (int, float)) or now - seen > self.max_age:
+                continue
+            entry = {'s': seen}
+            for k in ('n', 'c', 'd'):
+                if isinstance(e.get(k), str) and e[k]:
+                    entry[k] = e[k][:20]
+            if isinstance(e.get('t'), str):
+                t = normalise_type_text(e['t'])
+                if t:
+                    entry['t'] = t
+            self.vessels[int(mmsi)] = entry
+        self._cap()
+        return len(self.vessels)
+
+    def lookup(self, mmsi):
+        return self.vessels.get(mmsi)
+
+    def remember(self, msg, now):
+        """Store the static fields of a decoded message; returns True when something changed."""
+        fields = {}
+        if msg.get('name'):
+            fields['n'] = msg['name'][:20]
+        if msg.get('callsign'):
+            fields['c'] = msg['callsign'][:20]
+        if msg.get('destination'):
+            fields['d'] = msg['destination'][:20]
+        if msg.get('shiptype'):
+            t = ship_type_text(msg['shiptype'])
+            if t:
+                fields['t'] = t
+        if not fields:
+            return False
+        entry = self.vessels.get(msg['mmsi'])
+        if entry is None:
+            entry = self.vessels[msg['mmsi']] = {}
+        changed = any(entry.get(k) != v for k, v in fields.items())
+        entry.update(fields)
+        if changed or now - entry.get('s', 0) > 86400:   # refresh "seen" at most daily
+            entry['s'] = int(now)
+            self.dirty = True
+        return changed
+
+    def save_if_due(self, now=None, force=False):
+        now = time.time() if now is None else now
+        if not self.dirty or (not force and now - self.last_save < self.save_interval):
+            return False
+        self._cap()
+        tmp = self.path + '.tmp'
+        try:
+            with open(tmp, 'w') as f:
+                json.dump({'version': 1, 'vessels': {str(k): v for k, v in sorted(self.vessels.items())}}, f, separators=(',', ':'))
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(tmp, self.path)
+            self.error = None
+        except OSError as e:
+            self.error = 'cache not saved: %s' % e
+            self.last_save = now
+            return False
+        self.dirty = False
+        self.last_save = now
+        return True
+
+    def _cap(self):
+        if len(self.vessels) > self.max_entries:
+            for mmsi, _ in sorted(self.vessels.items(), key=lambda kv: kv[1].get('s', 0))[:len(self.vessels) - self.max_entries]:
+                del self.vessels[mmsi]
+
+
 class VesselTable:
-    def __init__(self, max_age):
+    def __init__(self, max_age, cache=None):
         self.max_age = max_age
+        self.cache = cache
         self.vessels = {}          # mmsi -> dict
 
     def apply(self, msg, now):
         if not msg:
             return
-        v = self.vessels.setdefault(msg['mmsi'], {'mmsi': msg['mmsi'], 'last': now})
-        for k in ('lat', 'lon', 'sog', 'cog', 'hdg', 'status', 'name', 'callsign', 'shiptype', 'alt'):
+        v = self.vessels.get(msg['mmsi'])
+        if v is None:
+            v = self.vessels[msg['mmsi']] = {'mmsi': msg['mmsi'], 'last': now}
+            cached = self.cache.lookup(msg['mmsi']) if self.cache else None
+            if cached:
+                for src, dst in (('n', 'name'), ('c', 'callsign'), ('d', 'destination'), ('t', 'type')):
+                    if cached.get(src):
+                        v[dst] = cached[src]
+        for k in ('lat', 'lon', 'sog', 'cog', 'hdg', 'status', 'name', 'callsign', 'destination', 'alt'):
             if msg.get(k) is not None:
                 v[k] = msg[k]
+        if msg.get('shiptype'):
+            v['type'] = ship_type_text(msg['shiptype']) or v.get('type', '')
         if 'kind' in msg and (msg['kind'] != 'A' or 'kind' not in v):
             v['kind'] = msg['kind']
         v['last'] = now
+        if self.cache:
+            self.cache.remember(msg, now)
 
     def prune(self, now):
         for mmsi in [m for m, v in self.vessels.items() if now - v['last'] > self.max_age]:
@@ -338,7 +494,8 @@ class Model:
         self.ais_events = collections.deque()  # timestamps of AIS sentences
         self.ais_last = None          # time of the last datagram
         self.ais_device = None        # path of the USB receiver, if found
-        self.vessels = VesselTable(args.max_age)
+        self.cache = VesselCache(args.cache) if getattr(args, 'cache', None) else None
+        self.vessels = VesselTable(args.max_age, self.cache)
         self.assembler = AisAssembler()
         self.sort_by_distance = True
         self.started = time.time()
@@ -400,11 +557,11 @@ def vessel_rows(model, now):
         if kind == 'A':
             status = NAV_STATUS.get(v.get('status', 15), 'Status %s' % v.get('status'))
         else:
-            status = {'B': 'Class B', 'AtoN': 'AtoN', 'Base': 'Base station', 'SAR': 'SAR aircraft'}.get(kind, kind)
+            status = {'B': 'Class B', 'AtoN': 'AtoN', 'Base': 'Base stn', 'SAR': 'SAR aircr.'}.get(kind, kind)
         rows.append({'mmsi': v['mmsi'], 'name': v.get('name') or v.get('callsign') or '',
                      'sog': v.get('sog'), 'cog': v.get('cog'), 'dist': dist, 'brg': brg,
-                     'status': status, 'age': now - v['last'], 'has_pos': lat is not None,
-                     'emergency': v.get('status') == 14})
+                     'type': v.get('type', ''), 'status': status, 'age': now - v['last'],
+                     'has_pos': lat is not None, 'emergency': v.get('status') == 14})
     return sort_rows(rows, model.sort_by_distance)
 
 
@@ -417,7 +574,8 @@ def sort_rows(rows, by_distance):
 
 
 ADSB_HEAD = ' ICAO   FLIGHT   SQWK   ALT ft  SPD kt  TRK  DIST km  BRG    V/S  AGE   RSSI'
-AIS_HEAD = ' MMSI      NAME                  SOG kt  COG  DIST km  BRG  STATUS          AGE'
+AIS_FMT = ' %-9s %-18s %6s %4s %7s %3s %-9s %-11s %4s'
+AIS_HEAD = AIS_FMT % ('MMSI', 'NAME', 'SOG kt', 'COG', 'DIST km', 'BRG', 'TYPE', 'STATUS', 'AGE')
 
 
 def adsb_line(r):
@@ -430,9 +588,9 @@ def adsb_line(r):
 
 
 def ais_line(r):
-    return ' %-9s %-20s %7s %4s %8s %4s  %-14s %4s' % (
-        r['mmsi'], r['name'][:20], fmt_num(r['sog']), fmt_num(r['cog'], '%03.0f'),
-        fmt_num(r['dist']), fmt_num(r['brg'], '%03.0f'), r['status'][:14], fmt_age(r['age']))
+    return AIS_FMT % (
+        r['mmsi'], r['name'][:18], fmt_num(r['sog']), fmt_num(r['cog'], '%03.0f'),
+        fmt_num(r['dist']), fmt_num(r['brg'], '%03.0f'), r['type'][:9], r['status'][:11], fmt_age(r['age']))
 
 
 def health_adsb(model, now):
@@ -456,6 +614,8 @@ def health_ais(model, now):
         bits.append('no data for %s' % fmt_age(now - model.ais_last))
     else:
         bits.append('%.0f msg/min' % model.ais_msg_per_min(now))
+    if model.cache:
+        bits.append(model.cache.error or '%d names cached' % len(model.cache.vessels))
     return ' · '.join(bits)
 
 
@@ -581,6 +741,8 @@ class Collector:
         if now - self.last_prune >= 5:
             self.last_prune = now
             m.vessels.prune(now)
+            if m.cache:
+                m.cache.save_if_due(now)
 
     def refresh_adsb(self, now):
         m = self.model
@@ -648,6 +810,7 @@ def build_parser():
     p.add_argument('--ais-device-glob', default='/dev/serial/by-id/*', help='glob that matches the USB AIS receiver, shown as health ("" to disable)')
     p.add_argument('--lat', type=float, help='receiver latitude (for distance / bearing)')
     p.add_argument('--lon', type=float, help='receiver longitude')
+    p.add_argument('--cache', metavar='FILE', help='JSON file that keeps ship names / call signs / types across restarts (put it on persistent storage)')
     p.add_argument('--max-age', type=int, default=120, help='hide targets not heard for this many seconds (default 120)')
     p.add_argument('--ais-port', type=int, default=10111, help='TCP port OffARO should use for AIS on this box, shown in the footer (0 = hide)')
     p.add_argument('--adsb-port', type=int, default=30003, help='port OffARO should use for ADS-B (SBS/BaseStation, default 30003; 0 = hide)')
@@ -664,7 +827,16 @@ def main(argv=None):
     args = build_parser().parse_args(argv)
     model = Model(args)
     model.ips = local_ips()
+    if model.cache:
+        model.cache.load()
     collector = Collector(model)
+
+    def flush_and_exit(*_):
+        if model.cache:
+            model.cache.save_if_due(force=True)
+        raise SystemExit(0)
+    signal.signal(signal.SIGTERM, flush_and_exit)
+    signal.signal(signal.SIGHUP, flush_and_exit)
     try:
         collector.open_udp()
     except OSError as e:
@@ -675,6 +847,8 @@ def main(argv=None):
             collector.poll(0.5)
         lines, _ = render_frame(model, args.width, args.height)
         print('\n'.join(lines))
+        if model.cache:
+            model.cache.save_if_due(force=True)
         return 0
     import curses
     while True:
@@ -682,7 +856,7 @@ def main(argv=None):
             curses.wrapper(run_curses, model, collector)
             return 0
         except KeyboardInterrupt:
-            return 0
+            flush_and_exit()
         except Exception as e:  # keep the kiosk alive, log and restart the UI
             if args.log:
                 with open(args.log, 'a') as f:

@@ -6,6 +6,9 @@
 #
 # What it does
 #   * copies receiver_console.py to /usr/local/bin
+#   * keeps the vessel-name cache in data/vessels.json next to this script (owned by the console
+#     user) unless you pass your own --cache; run this installer from persistent storage when the
+#     root file system is an overlay. Seed it with export_offaro_cache.py (see README).
 #   * writes ~<user>/view.sh so it starts the console (the previous view.sh is kept as view.sh.bak);
 #     if ~<user>/.bashrc does not already run view.sh on tty1, a line is appended that does
 #   * does NOT restart the running console; log out of tty1 (or `pkill -t tty1 -u <user>`) and
@@ -30,6 +33,16 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 
 install -m 755 "$HERE/receiver_console.py" /usr/local/bin/receiver_console.py
 python3 -m py_compile /usr/local/bin/receiver_console.py
+
+HAVE_CACHE=no
+for a in "${EXTRA[@]}"; do case "$a" in --cache|--cache=*) HAVE_CACHE=yes ;; esac; done
+if [ "$HAVE_CACHE" = no ]; then
+  mkdir -p "$HERE/data"
+  chown "$USER_NAME:" "$HERE/data"
+  [ -f "$HERE/data/vessels.json" ] && chown "$USER_NAME:" "$HERE/data/vessels.json"
+  EXTRA+=(--cache "$HERE/data/vessels.json")
+  echo "vessel cache: $HERE/data/vessels.json"
+fi
 
 VIEW="$HOME_DIR/view.sh"
 if [ -f "$VIEW" ] && ! grep -q receiver_console "$VIEW"; then

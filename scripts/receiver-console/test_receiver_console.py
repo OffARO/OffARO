@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """Tests for receiver_console.py:  python3 -m unittest scripts/receiver-console/test_receiver_console.py"""
 import argparse
+import json
 import os
 import sys
+import tempfile
+import time
 import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -16,7 +19,7 @@ TYPE18 = '!AIVDM,1,1,,A,B52K>;h00Fc>jpUlNV@ikwpUoP06,0*4C'
 
 
 def args(**kw):
-    base = dict(aircraft_json='/nonexistent', ais_udp=2222, ais_bind='127.0.0.1', ais_device_glob='',
+    base = dict(aircraft_json='/nonexistent', ais_udp=2222, ais_bind='127.0.0.1', ais_device_glob='', cache=None,
                 lat=69.70, lon=18.88, max_age=120, ais_port=10111, adsb_port=30003, remoteid_port=5003)
     base.update(kw)
     return argparse.Namespace(**base)
@@ -91,6 +94,112 @@ class Decode(unittest.TestCase):
         self.assertEqual(t.vessels, {})
 
 
+class Cache(unittest.TestCase):
+    def test_ship_type_labels(self):
+        self.assertEqual(rc.ship_type_text(70), 'Cargo')
+        self.assertEqual(rc.ship_type_text(79), 'Cargo')
+        self.assertEqual(rc.ship_type_text(37), 'Pleasure')
+        self.assertEqual(rc.ship_type_text(44), 'HSC')
+        self.assertEqual(rc.ship_type_text(0), '')
+        self.assertEqual(rc.ship_type_text(None), '')
+        self.assertEqual(rc.ship_type_text(12), '')
+        self.assertEqual(rc.normalise_type_text('High speed craft (HSC)'), 'HSC')
+        self.assertEqual(rc.normalise_type_text('Towing: length exceeds 200m'), 'Towing')
+        self.assertEqual(rc.normalise_type_text('Not available'), '')
+        self.assertEqual(rc.normalise_type_text('Fishing'), 'Fishing')
+
+    def test_roundtrip_merge_and_prune(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, 'v.json')
+            c = rc.VesselCache(path, save_interval=60)
+            self.assertEqual(c.load(), 0)
+            a = rc.AisAssembler()
+            self.assertFalse(c.remember(rc.decode_ais(TYPE1.split(',')[5]), 1000))   # position only → nothing
+            a.feed(TYPE5_A)
+            self.assertTrue(c.remember(a.feed(TYPE5_B), 1000))
+            self.assertEqual(c.vessels[351759000], {'n': 'EVER DIADEM', 'c': '3FOF8', 'd': 'NEW YORK', 't': 'Cargo', 's': 1000})
+            self.assertTrue(c.save_if_due(1010))              # first save happens at once
+            c.remember({'mmsi': 351759000, 'name': 'EVER DIADEM II'}, 1020)
+            self.assertFalse(c.save_if_due(1030))             # next one not before 60 s have passed
+            self.assertTrue(c.save_if_due(1070))
+            self.assertFalse(os.path.exists(path + '.tmp'))
+            data = json.load(open(path))
+            self.assertEqual(data['vessels']['351759000']['n'], 'EVER DIADEM II')
+            c2 = rc.VesselCache(path)
+            self.assertEqual(c2.load(now=2000), 1)
+            self.assertEqual(c2.lookup(351759000)['t'], 'Cargo')
+            c3 = rc.VesselCache(path, max_age_days=1)
+            self.assertEqual(c3.load(now=1000 + 2 * 86400), 0)   # too old → dropped
+
+    def test_imported_long_labels_and_junk(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, 'v.json')
+            json.dump({'version': 1, 'vessels': {'205545190': {'n': 'QILAK', 't': 'High speed craft (HSC)', 's': 5},
+                                                 'abc': {'n': 'x', 's': 5}, '7': 'junk', '8': {'n': '<b>' * 20, 's': 5}}}, open(path, 'w'))
+            c = rc.VesselCache(path)
+            self.assertEqual(c.load(now=10), 2)
+            self.assertEqual(c.vessels[205545190], {'s': 5, 'n': 'QILAK', 't': 'HSC'})
+            self.assertEqual(len(c.vessels[8]['n']), 20)
+
+    def test_table_uses_cached_name_before_static_message_arrives(self):
+        c = rc.VesselCache('/nonexistent/v.json')
+        c.vessels[477553000] = {'n': 'CACHED NAME', 'c': 'ABCD', 't': 'Tanker', 's': 1}
+        t = rc.VesselTable(120, c)
+        t.apply(rc.decode_ais(TYPE1.split(',')[5]), 10)
+        v = t.vessels[477553000]
+        self.assertEqual((v['name'], v['callsign'], v['type']), ('CACHED NAME', 'ABCD', 'Tanker'))
+        m = rc.Model(args()); m.vessels = t; m.cache = c
+        rows = rc.vessel_rows(m, 11)
+        self.assertEqual(rc.ais_line(rows[0]), ' 477553000 CACHED NAME           0.0  051  6598.2 331 Tanker    Moored        1s')
+        self.assertEqual(len(rc.ais_line(rows[0])), 80)
+        self.assertEqual(len(rc.AIS_HEAD), 80)
+
+    def test_cap_keeps_newest(self):
+        c = rc.VesselCache('/nonexistent/v.json', max_entries=2)
+        c.vessels = {1: {'s': 10}, 2: {'s': 30}, 3: {'s': 20}}
+        c._cap()
+        self.assertEqual(sorted(c.vessels), [2, 3])
+
+    def test_unwritable_path_is_reported_not_fatal(self):
+        c = rc.VesselCache('/nonexistent-dir/v.json')
+        c.vessels = {1: {'n': 'X', 's': 1}}; c.dirty = True
+        self.assertFalse(c.save_if_due(force=True))
+        self.assertIn('cache not saved', c.error)
+
+
+class ExportTool(unittest.TestCase):
+    def test_export_from_offaro_db_and_merge(self):
+        import sqlite3
+        import export_offaro_cache as ex
+        with tempfile.TemporaryDirectory() as d:
+            db = os.path.join(d, 'ais-static.db')
+            con = sqlite3.connect(db)
+            con.execute('CREATE TABLE vessel_static (mmsi TEXT PRIMARY KEY, name TEXT, imo TEXT, callsign TEXT, shipType INTEGER, shipTypeCategory TEXT, shipTypeColor TEXT, dimBow INTEGER, dimStern INTEGER, dimPort INTEGER, dimStarboard INTEGER, draught REAL, lastSeen INTEGER NOT NULL)')
+            now_ms = int(time.time() * 1000)
+            con.executemany('INSERT INTO vessel_static (mmsi, name, callsign, shipType, shipTypeCategory, lastSeen) VALUES (?,?,?,?,?,?)', [
+                ('257123000', 'FJORDKONGEN', 'LABC', 60, 'Passenger', now_ms),
+                ('257999000', 'OLD BOAT', None, 30, 'Fishing', now_ms - 6 * 365 * 86400 * 1000),
+                ('258000000', None, None, None, 'Cargo', now_ms),
+                ('junk', 'X', None, None, None, now_ms),
+            ])
+            con.commit(); con.close()
+            out = os.path.join(d, 'vessels.json')
+            json.dump({'version': 1, 'vessels': {'257123000': {'n': 'OLD NAME', 'd': 'TROMSO', 's': int(time.time()) - 1000}}}, open(out, 'w'))
+            self.assertEqual(ex.main(['--db', db, '--into', out]), 0)
+            data = json.load(open(out))['vessels']
+            self.assertEqual(data['257123000']['n'], 'FJORDKONGEN')     # newer wins
+            self.assertEqual(data['257123000']['d'], 'TROMSO')          # but keeps what the DB lacks
+            self.assertEqual(data['257123000']['t'], 'Passenger')
+            self.assertEqual(data['258000000'], {'s': data['258000000']['s'], 't': 'Cargo'})
+            self.assertNotIn('257999000', data)                          # older than 5 years
+            self.assertNotIn('junk', data)
+            # merging a second JSON file
+            other = os.path.join(d, 'other.json')
+            json.dump({'version': 1, 'vessels': {'111257511': {'n': 'RESCUE 2 TROMS', 's': int(time.time())}}}, open(other, 'w'))
+            self.assertEqual(ex.main(['--from-json', other, '--into', out]), 0)
+            self.assertIn('111257511', json.load(open(out))['vessels'])
+
+
 class Geometry(unittest.TestCase):
     def test_distance_bearing_tromso_oslo(self):
         d, b = rc.distance_bearing(69.6496, 18.9560, 59.9139, 10.7522)
@@ -154,7 +263,7 @@ class Layout(unittest.TestCase):
         rows = '\n'.join(lines)
         self.assertIn(' 47878c NOZ1480  0734      GND       0  281        -    -      -   0s  -11.4', rows)
         self.assertIn(' 4ca7b5 SAS4123  7700    35000     455  123     50.4  028  -1216   2s  -20.1', rows)
-        self.assertIn(' 477553000                          0.0  051   6598.2  331  Moored           1s', rows)
+        self.assertIn(' 477553000                       0.0  051  6598.2 331           Moored        1s', rows)
         self.assertIn(' 351759000 EVER DIADEM', rows)
         self.assertEqual(attrs[0], 'header')
         self.assertEqual(attrs[3], 'alert')      # SAS4123 squawking 7700 sorts first (has a distance)
@@ -176,6 +285,8 @@ class Layout(unittest.TestCase):
         m.ais_last = 100; m.ais_events.extend([100] * 10); m.started = 40
         self.assertEqual(rc.health_ais(m, 100), 'rx null · 10 msg/min')
         self.assertEqual(rc.health_ais(m, 400), 'rx null · no data for 5m')
+        m.cache = rc.VesselCache('/nonexistent/x.json'); m.cache.vessels = {1: {}, 2: {}}
+        self.assertEqual(rc.health_ais(m, 100), 'rx null · 10 msg/min · 2 names cached')
         m.adsb_age = None
         self.assertEqual(rc.health_adsb(m, 100), 'dump1090: no aircraft.json')
         m.adsb_age = 30
