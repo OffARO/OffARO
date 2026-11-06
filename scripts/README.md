@@ -6,6 +6,7 @@ Programs that run next to OffARO rather than inside it: on a Raspberry Pi in the
 | --- | --- | --- |
 | [`drone-remote-id/`](drone-remote-id) | Raspberry Pi / Linux with a monitor-mode Wi-Fi adapter | Receives drone **Remote ID** beacons and serves them to OffARO over TCP. The filtering proxy only forwards the frames that carry Remote ID, so it works over a 4G link. Manual: *Drone Remote ID → Receiver setup*. |
 | [`aprs-device-controller/`](aprs-device-controller) | A small Linux box at the remote site, with Direwolf and Shelly relays | The remote end of OffARO's **Device Control Panel**: receives signed APRS messages, switches Shelly relays and reports their state back. Manual: *Chat & Messaging → Device Control*. |
+| [`receiver-console/`](receiver-console) | Raspberry Pi with dump1090-fa and an AIS receiver, with a screen attached | Full-screen **ADS-B + AIS** display on the box's own screen, with its IP address and the ports to point OffARO at — for a field LAN without internet. Replaces `view1090`. |
 | `ant-plus-dog-tracker/` | Machine with an ANT+ USB stick | *Wanted.* A bridge that decodes Garmin ANT+ dog-collar positions and sends them to OffARO's **Local Position Injection** (UDP). If you have written one, open an issue in [OffARO-Feedback](https://github.com/OffARO/OffARO-Feedback) and we will add it here. |
 
 ## Getting a script onto a Pi
