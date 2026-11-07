@@ -4,7 +4,7 @@
   "description": "",
   "author": "LB5ZH-4",
   "created": "2026-02-17T10:22:44.028Z",
-  "updated": "2026-10-17T08:38:30.606Z",
+  "updated": "2026-11-07T10:41:18.533Z",
   "tileSources": [
     {
       "id": "norgeskart-topo",
@@ -275,7 +275,7 @@
       "url": "https://ogckart-sn1.atlas.vegvesen.no/datex_3_1/ows",
       "attribution": "Custom WFS Source",
       "maxZoom": 18,
-      "minZoom": 8,
+      "minZoom": 9,
       "type": "custom",
       "enabled": true,
       "isOverlay": true,
