@@ -452,7 +452,7 @@
         "version": "1.3.0",
         "crs": "EPSG:3857",
         "params": {
-          "styles": "arrows"
+          "styles": "meteorological_arrows"
         },
         "timeDimension": "forecast"
       }
