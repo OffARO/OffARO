@@ -4,7 +4,7 @@
   "description": "",
   "author": "LB5ZH-4",
   "created": "2026-02-17T10:22:44.028Z",
-  "updated": "2026-11-10T10:40:00.000Z",
+  "updated": "2026-11-10T12:40:00.000Z",
   "tileSources": [
     {
       "id": "norgeskart-topo",
@@ -478,6 +478,20 @@
       "attribution": "© OpenStreetMap contributors (ODbL)",
       "maxZoom": 19,
       "minZoom": 13,
+      "type": "overlay",
+      "enabled": true,
+      "isOverlay": true,
+      "disableCache": false,
+      "opacity": 1,
+      "serviceType": "vector"
+    },
+    {
+      "id": "turrutebasen-turruter",
+      "name": "Trails (Turrutebasen)",
+      "url": "pmtiles://https://github.com/OffARO/norway-vector-map/releases/download/trails-2026-11/norge-turruter.pmtiles",
+      "attribution": "© Kartverket (CC BY 4.0)",
+      "maxZoom": 18,
+      "minZoom": 9,
       "type": "overlay",
       "enabled": true,
       "isOverlay": true,
