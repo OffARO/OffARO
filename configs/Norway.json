@@ -4,7 +4,7 @@
   "description": "",
   "author": "LB5ZH-4",
   "created": "2026-02-17T10:22:44.028Z",
-  "updated": "2026-11-10T16:30:00.000Z",
+  "updated": "2026-11-11T09:00:00.000Z",
   "tileSources": [
     {
       "id": "norgeskart-topo",
@@ -511,6 +511,20 @@
       "isOverlay": true,
       "disableCache": false,
       "opacity": 1,
+      "serviceType": "vector"
+    },
+    {
+      "id": "kartverket-bratthet",
+      "name": "Slope (Kartverket)",
+      "url": "pmtiles://https://github.com/OffARO/norway-vector-map/releases/download/terrain-slope-2026-11/norge-bratthet.pmtiles",
+      "attribution": "© Kartverket (CC BY 4.0)",
+      "maxZoom": 18,
+      "minZoom": 9,
+      "type": "overlay",
+      "enabled": true,
+      "isOverlay": true,
+      "disableCache": false,
+      "opacity": 0.7,
       "serviceType": "vector"
     }
   ],
