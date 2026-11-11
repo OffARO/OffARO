@@ -4,7 +4,7 @@
   "description": "",
   "author": "LB5ZH-4",
   "created": "2026-02-17T10:22:44.028Z",
-  "updated": "2026-11-11T12:00:00.000Z",
+  "updated": "2026-11-11T13:00:00.000Z",
   "tileSources": [
     {
       "id": "norgeskart-topo",
@@ -539,6 +539,20 @@
       "isOverlay": true,
       "disableCache": false,
       "opacity": 0.5,
+      "serviceType": "vector"
+    },
+    {
+      "id": "kartverket-dybder",
+      "name": "Depths (Kartverket)",
+      "url": "pmtiles://https://github.com/OffARO/norway-vector-map/releases/download/depths-2026-11/norge-dybder.pmtiles",
+      "attribution": "© Kartverket (CC BY 4.0)",
+      "maxZoom": 18,
+      "minZoom": 9,
+      "type": "overlay",
+      "enabled": true,
+      "isOverlay": true,
+      "disableCache": false,
+      "opacity": 1,
       "serviceType": "vector"
     }
   ],
