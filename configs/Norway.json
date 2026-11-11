@@ -4,7 +4,7 @@
   "description": "",
   "author": "LB5ZH-4",
   "created": "2026-02-17T10:22:44.028Z",
-  "updated": "2026-11-11T13:00:00.000Z",
+  "updated": "2026-11-11T14:00:00.000Z",
   "tileSources": [
     {
       "id": "norgeskart-topo",
@@ -456,104 +456,6 @@
         },
         "timeDimension": "forecast"
       }
-    },
-    {
-      "id": "matrikkelen-bygninger",
-      "name": "Buildings (Matrikkelen)",
-      "url": "pmtiles://https://github.com/OffARO/norway-vector-map/releases/download/buildings-2026-11/norge-bygninger.pmtiles",
-      "attribution": "© Kartverket (CC BY 4.0)",
-      "maxZoom": 18,
-      "minZoom": 12,
-      "type": "overlay",
-      "enabled": true,
-      "isOverlay": true,
-      "disableCache": false,
-      "opacity": 1,
-      "serviceType": "vector"
-    },
-    {
-      "id": "osm-bygningsomriss",
-      "name": "Building footprints (OSM)",
-      "url": "pmtiles://https://github.com/OffARO/norway-vector-map/releases/download/osm-buildings-2026-11/norge-bygningsomriss.pmtiles",
-      "attribution": "© OpenStreetMap contributors (ODbL)",
-      "maxZoom": 19,
-      "minZoom": 13,
-      "type": "overlay",
-      "enabled": true,
-      "isOverlay": true,
-      "disableCache": false,
-      "opacity": 1,
-      "serviceType": "vector"
-    },
-    {
-      "id": "turrutebasen-turruter",
-      "name": "Trails (Turrutebasen)",
-      "url": "pmtiles://https://github.com/OffARO/norway-vector-map/releases/download/trails-2026-11/norge-turruter.pmtiles",
-      "attribution": "© Kartverket (CC BY 4.0)",
-      "maxZoom": 18,
-      "minZoom": 9,
-      "type": "overlay",
-      "enabled": true,
-      "isOverlay": true,
-      "disableCache": false,
-      "opacity": 1,
-      "serviceType": "vector"
-    },
-    {
-      "id": "kartverket-hoydekurver-10m",
-      "name": "Contours 10 m (Kartverket)",
-      "url": "pmtiles://https://github.com/OffARO/norway-vector-map/releases/download/terrain-contours-2026-11/norge-hoydekurver.pmtiles",
-      "attribution": "© Kartverket (CC BY 4.0)",
-      "maxZoom": 18,
-      "minZoom": 12,
-      "type": "overlay",
-      "enabled": true,
-      "isOverlay": true,
-      "disableCache": false,
-      "opacity": 1,
-      "serviceType": "vector"
-    },
-    {
-      "id": "kartverket-bratthet",
-      "name": "Slope (Kartverket)",
-      "url": "pmtiles://https://github.com/OffARO/norway-vector-map/releases/download/terrain-slope-2026-11/norge-bratthet.pmtiles",
-      "attribution": "© Kartverket (CC BY 4.0)",
-      "maxZoom": 18,
-      "minZoom": 9,
-      "type": "overlay",
-      "enabled": true,
-      "isOverlay": true,
-      "disableCache": false,
-      "opacity": 0.7,
-      "serviceType": "vector"
-    },
-    {
-      "id": "kartverket-skyggerelieff",
-      "name": "Hillshade (Kartverket)",
-      "url": "pmtiles://https://github.com/OffARO/norway-vector-map/releases/download/terrain-hillshade-2026-11/norge-skyggerelieff.pmtiles",
-      "attribution": "© Kartverket (CC BY 4.0)",
-      "maxZoom": 18,
-      "minZoom": 6,
-      "type": "overlay",
-      "enabled": true,
-      "isOverlay": true,
-      "disableCache": false,
-      "opacity": 0.5,
-      "serviceType": "vector"
-    },
-    {
-      "id": "kartverket-dybder",
-      "name": "Depths (Kartverket)",
-      "url": "pmtiles://https://github.com/OffARO/norway-vector-map/releases/download/depths-2026-11/norge-dybder.pmtiles",
-      "attribution": "© Kartverket (CC BY 4.0)",
-      "maxZoom": 18,
-      "minZoom": 9,
-      "type": "overlay",
-      "enabled": true,
-      "isOverlay": true,
-      "disableCache": false,
-      "opacity": 1,
-      "serviceType": "vector"
     }
   ],
   "sarServers": [
