@@ -4,8 +4,21 @@
   "description": "",
   "author": "LB5ZH-4",
   "created": "2026-02-17T10:22:44.028Z",
-  "updated": "2026-11-14T15:47:52.000Z",
+  "updated": "2026-11-15T16:34:53.000Z",
   "tileSources": [
+    {
+      "id": "custom_f4d234a7-975d-4cc2-8150-d131446d887a",
+      "name": "OffARO Norway",
+      "url": "pmtiles://https://github.com/OffARO/norway-vector-map/releases/download/n50-2026-11/norge-sor.pmtiles|pmtiles://https://github.com/OffARO/norway-vector-map/releases/download/n50-2026-11/norge-nord.pmtiles",
+      "attribution": "© Kartverket (CC BY 4.0)",
+      "maxZoom": 19,
+      "minZoom": 0,
+      "type": "custom",
+      "enabled": true,
+      "isOverlay": false,
+      "disableCache": false,
+      "serviceType": "vector"
+    },
     {
       "id": "norgeskart-topo",
       "name": "Norgeskart Topo",
@@ -83,6 +96,104 @@
     }
   ],
   "overlays": [
+    {
+      "id": "offaro-norway-matrikkelen-bygninger",
+      "name": "Buildings (Matrikkelen)",
+      "url": "pmtiles://https://github.com/OffARO/norway-vector-map/releases/download/buildings-2026-11/norge-bygninger.pmtiles",
+      "attribution": "© Kartverket (CC BY 4.0)",
+      "maxZoom": 18,
+      "minZoom": 12,
+      "type": "overlay",
+      "enabled": true,
+      "isOverlay": true,
+      "disableCache": false,
+      "opacity": 1,
+      "serviceType": "vector"
+    },
+    {
+      "id": "offaro-norway-osm-bygningsomriss",
+      "name": "Building footprints (OSM)",
+      "url": "pmtiles://https://github.com/OffARO/norway-vector-map/releases/download/osm-buildings-2026-11/norge-bygningsomriss.pmtiles",
+      "attribution": "© OpenStreetMap contributors (ODbL)",
+      "maxZoom": 19,
+      "minZoom": 13,
+      "type": "overlay",
+      "enabled": true,
+      "isOverlay": true,
+      "disableCache": false,
+      "opacity": 1,
+      "serviceType": "vector"
+    },
+    {
+      "id": "offaro-norway-turrutebasen-turruter",
+      "name": "Trails (Turrutebasen)",
+      "url": "pmtiles://https://github.com/OffARO/norway-vector-map/releases/download/trails-2026-11/norge-turruter.pmtiles",
+      "attribution": "© Kartverket (CC BY 4.0)",
+      "maxZoom": 18,
+      "minZoom": 9,
+      "type": "overlay",
+      "enabled": true,
+      "isOverlay": true,
+      "disableCache": false,
+      "opacity": 1,
+      "serviceType": "vector"
+    },
+    {
+      "id": "offaro-norway-kartverket-hoydekurver-10m",
+      "name": "Contours 10 m (Kartverket)",
+      "url": "pmtiles://https://github.com/OffARO/norway-vector-map/releases/download/terrain-contours-2026-11/norge-hoydekurver.pmtiles",
+      "attribution": "© Kartverket (CC BY 4.0)",
+      "maxZoom": 18,
+      "minZoom": 12,
+      "type": "overlay",
+      "enabled": true,
+      "isOverlay": true,
+      "disableCache": false,
+      "opacity": 1,
+      "serviceType": "vector"
+    },
+    {
+      "id": "offaro-norway-kartverket-bratthet",
+      "name": "Slope (Kartverket)",
+      "url": "pmtiles://https://github.com/OffARO/norway-vector-map/releases/download/terrain-slope-2026-11/norge-bratthet.pmtiles",
+      "attribution": "© Kartverket (CC BY 4.0)",
+      "maxZoom": 18,
+      "minZoom": 9,
+      "type": "overlay",
+      "enabled": true,
+      "isOverlay": true,
+      "disableCache": false,
+      "opacity": 0.7,
+      "serviceType": "vector"
+    },
+    {
+      "id": "offaro-norway-kartverket-skyggerelieff",
+      "name": "Hillshade (Kartverket)",
+      "url": "pmtiles://https://github.com/OffARO/norway-vector-map/releases/download/terrain-hillshade-2026-11/norge-skyggerelieff.pmtiles",
+      "attribution": "© Kartverket (CC BY 4.0)",
+      "maxZoom": 18,
+      "minZoom": 6,
+      "type": "overlay",
+      "enabled": true,
+      "isOverlay": true,
+      "disableCache": false,
+      "opacity": 0.5,
+      "serviceType": "vector"
+    },
+    {
+      "id": "offaro-norway-kartverket-dybder",
+      "name": "Depths (Kartverket)",
+      "url": "pmtiles://https://github.com/OffARO/norway-vector-map/releases/download/depths-2026-11/norge-dybder.pmtiles",
+      "attribution": "© Kartverket (CC BY 4.0)",
+      "maxZoom": 18,
+      "minZoom": 9,
+      "type": "overlay",
+      "enabled": true,
+      "isOverlay": true,
+      "disableCache": false,
+      "opacity": 1,
+      "serviceType": "vector"
+    },
     {
       "id": "nve-avalanche",
       "name": "Snøskred Aktsomhet (NVE)",
@@ -497,6 +608,10 @@
   ],
   "folders": [
     {
+      "id": "folder-offaro-norway",
+      "name": "OffARO Norway"
+    },
+    {
       "id": "folder-vegvesen",
       "name": "Vegvesen"
     },
@@ -506,6 +621,15 @@
     }
   ],
   "folderTree": {
+    "folder-offaro-norway": [
+      "offaro-norway-matrikkelen-bygninger",
+      "offaro-norway-osm-bygningsomriss",
+      "offaro-norway-turrutebasen-turruter",
+      "offaro-norway-kartverket-hoydekurver-10m",
+      "offaro-norway-kartverket-bratthet",
+      "offaro-norway-kartverket-skyggerelieff",
+      "offaro-norway-kartverket-dybder"
+    ],
     "folder-vegvesen": [
       "vegvesen-cameras",
       "vegvesen-traffic",
@@ -513,6 +637,7 @@
       "custom_91c00ca8-12e6-42a7-aeec-60a10a2d1116"
     ],
     "root": [
+      "folder-offaro-norway",
       "folder-met-weather",
       "nve-avalanche",
       "kvikkleire-skredfare",
@@ -532,6 +657,48 @@
       "met-wind-arrows-10m"
     ]
   },
+  "mapPresets": [
+    {
+      "id": "616f12ec-3333-4425-919e-a8d3626b7f66",
+      "name": "OffARO Norway",
+      "base": {
+        "multiple": false,
+        "active": [
+          {
+            "sourceId": "custom_f4d234a7-975d-4cc2-8150-d131446d887a",
+            "order": 1,
+            "opacity": 1
+          }
+        ],
+        "selectedId": "custom_f4d234a7-975d-4cc2-8150-d131446d887a"
+      },
+      "overlays": [
+        {
+          "id": "offaro-norway-osm-bygningsomriss",
+          "opacity": 1
+        },
+        {
+          "id": "offaro-norway-turrutebasen-turruter",
+          "opacity": 0.8
+        },
+        {
+          "id": "offaro-norway-kartverket-dybder",
+          "opacity": 0.3
+        },
+        {
+          "id": "offaro-norway-kartverket-skyggerelieff",
+          "opacity": 0.6
+        },
+        {
+          "id": "offaro-norway-kartverket-hoydekurver-10m",
+          "opacity": 0.4
+        }
+      ],
+      "createdAt": 1794402370505,
+      "updatedAt": 1794740614156,
+      "minAppVersion": "2.0.0"
+    }
+  ],
   "crewOrganisations": [
     {
       "id": "org-mw3lmglk6jvio5",
